@@ -2,6 +2,8 @@
 
 An intelligent e-commerce product recommendation system powered by Google Gemini AI. Built with React and FastAPI, this application provides natural language-based product search and filtering.
 
+** Deployed Link -https://ai-product-recommender-z0zm.onrender.com/
+
 ## Features
 
 - **AI-Powered Search**: Natural language query processing using Google Gemini 2.5 Flash
