@@ -1,7 +1,10 @@
 import json
 from typing import List, Optional
+from pathlib import Path
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from gemini_client import gemini_client
 
@@ -35,19 +38,11 @@ products = load_products()
 class RecommendationRequest(BaseModel):
     query: str
 
-@app.get("/")
-def read_root():
-    return {"message": "Product Recommendation API is running"}
-
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return Response(content=b"", media_type="image/x-icon")
-
-@app.get("/products", response_model=List[Product])
+@app.get("/api/products", response_model=List[Product])
 def get_products():
     return products
 
-@app.post("/recommend", response_model=List[Product])
+@app.post("/api/recommend", response_model=List[Product])
 def recommend_products(request: RecommendationRequest):
     user_query = request.query
     
@@ -132,3 +127,12 @@ def recommend_products(request: RecommendationRequest):
                 desc_matches.append(p)
 
         return name_matches if name_matches else desc_matches
+
+app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    file_path = Path("frontend/dist") / full_path
+    if file_path.is_file():
+        return FileResponse(file_path)
+    return FileResponse("frontend/dist/index.html")
